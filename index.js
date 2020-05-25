@@ -1,10 +1,26 @@
 const TelegramBot = require('node-telegram-bot-api');
 const token="1279013555:AAHO6MSwZvyO-zGV-rtM5eaqbnLAMOM5cvI";
-const mysql= require('mysql');
+
+
 const express= require('express');
 const app = express();
+
 const bot=new TelegramBot(token,{polling:true});
 var request=require('request');
+
+const sqlite3=require('sqlite3').verbose();
+
+let db=new sqlite3.Database('./harrypotter.db',(err)=>
+{
+    if(err)
+    {
+        console.error(err.message);
+    }
+    console.log("Connessione riuscita")
+}
+
+);
+
 bot.onText(/\/start/,(msg)=>
 {
     bot.sendMessage(msg.chat.id,"<b>Your letter has finally arrived!🦉</b> \n \nWhat kind of witch or wizard will you be? Will you have the courage of a <b>Gryffindor</b>? The audacity of a <b>Slytherin</b>? The insight of a <b>Ravenclaw</b>?  Loyalty of a <b>Hufflepuff</b>? <b>YOU</b> will decide! 🎓 With countless choices, you can build your own unique path in HarryPotterBot. 📬",
@@ -79,7 +95,9 @@ bot.onText(/\/sortinghat/,(msg)=>
                     })
                     bot.sendPhoto(ID,"assets/tassorosso.png")
                 break;
-                }}
+                }
+                
+            }
             
             )}
          
@@ -110,7 +128,7 @@ bot.onText(/\/characters (.+)/,(msg,match)=>
 });
  
 bot.onText(/\/house (.+)/,(msg,match)=>
-  { bot.on("polling_error", (err) => console.log(err));
+  { 
     var house=match[1] ? match[1] :"";
     var ID=msg.chat.id;
     bot.on("polling_error", (err) => console.log(err));
@@ -124,7 +142,7 @@ bot.onText(/\/house (.+)/,(msg,match)=>
         }
         else if(!error&&response.statusCode==200)
         {
-           bot.sendMessage(ID,'looking for ',{parse_mode:'Markdown'});
+           bot.sendMessage(ID,'looking for '+house,{parse_mode:'Markdown'});
            var b=body;
            const par=JSON.parse(b);
            console.log(par);
@@ -135,18 +153,26 @@ bot.onText(/\/house (.+)/,(msg,match)=>
     } ;})
 });
 
-bot.onText(/\/spells/,(msg,match)=>
-  { var spell=match[1] ? match[1] :"";
+bot.onText(/\/spells (.+)/,(msg,match)=>
+  { var spells=match[1] ? match[1] :"";
     var ID=msg.chat.id;
 
     let url='https://www.potterapi.com/v1/spells?key=$2a$10$wmgxJf6kxBPsX3en7UlLh.OiMRN.sPMl8/PzOJJPBTBrWVTA2NMfy';
     request(url, function(error,response,body){
         if(!error&&response.statusCode==200){
-            bot.sendMessage(ID,'looking for '+spell,{parse_mode:'Markdown'});
-           var b=body;
+          var b=body;
           const par=JSON.parse(b);
-          console.log(par);
-          bot.sendMessage(ID,'Name🤝:'+par[0].spell);
+          var tabellaUtenti = []
+          tabellaUtenti = par;
+          var prod=[]
+          prod=tabellaUtenti.filter(function(item) {
+            return item.spell === spells;
+          });   
+          if(prod.length==0)
+          { 
+              bot.sendMessage(ID,"Error: remember to enter name with capital letter ex: Accio.");}
+              else
+         { bot.sendMessage(ID,'Spell✨:'+prod[0].spell+'\nType✨:'+prod[0].type+'\nEffect✨:'+prod[0].effect);}
     }})
 
 });
@@ -157,7 +183,7 @@ bot.onText(/\/staff/,(msg)=>
     let url='http://hp-api.herokuapp.com/api/characters/staff';
     request(url, function(error,response,body){
         if(!error&&response.statusCode==200){
-            bot.sendMessage(ID,'looking for ',{parse_mode:'Markdown'});
+           
            var b=body;
           const par=JSON.parse(b);
           console.log(par);
@@ -282,4 +308,24 @@ bot.on("callback_query", (callbackQuery) => {
         }
         })
    } 
+)
+
+bot.onText(/\/patronus/,(msg)=>
+{
+    let sql="SELECT * FROM patronus";
+
+db.all(sql,[],(err,rows)=>
+{
+    if(err)
+    {
+        throw err;
+    }
+    rows.forEach((row)=>
+    {
+        console.dir(row);
+        bot.sendMessage(msg.chat.id,row[1]);
+    }
+    )
+})
+}
 )
