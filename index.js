@@ -30,19 +30,19 @@ bot.onText(/\/start/,(msg)=>
                    //ho deciso di rendere alcuni comandi interattivi,
                    //dato che non necessitano di particolari parametri
                     {
-                        text:'location✨',
+                        text:'Location✨',
                         callback_data:"click"
                     },
                    
                     {
-                        text:'about me💫',
+                        text:'About me💫',
                         callback_data:"me"
                     },     
                 ],
                 [
                    //collegamento al sito ufficiale di Harry Potter
                     {
-                        text:'official site✨',
+                        text:'Official site✨',
                         url:"https://www.wizardingworld.com" 
                     },
                 ]
@@ -123,7 +123,11 @@ bot.onText(/\/characters (.+)/,(msg,match)=>
           }
           else
           {
-              bot.sendMessage(ID,'Name🤝:'+par[0].name+'\nHome🌍:'+par[0].house+'\nSchool🏰:'+par[0].school+'\nAlias🔍:'+par[0].alias+'\nWand✨:'+par[0].wand);
+              bot.sendMessage(ID,'<b>Name</b>🤝:'+par[0].name+'\n<b>Home</b>🌍:'+par[0].house+'\n<b>School</b>🏰:'+par[0].school+'\n<b>Alias</b>🔍:'+par[0].alias+'\n<b>Wand</b>✨:'+par[0].wand,
+              {
+                parse_mode:"HTML"
+              }
+              );
           }
         }})
 
@@ -153,7 +157,11 @@ bot.onText(/\/house (.+)/,(msg,match)=>
            console.log(par);
            for(let i=0;i<par.length;i++)
            {//utilizzo un for per stampare tutti i risultati
-            bot.sendMessage(ID,'Name🤝:'+par[i].name+'\nPhoto🌍:'+par[i].image);
+            bot.sendMessage(ID,'<b>Name</b>🤝:'+par[i].name+'\n<b>Photo</b>🌍:'+par[i].image,
+            {
+                parse_mode:"HTML"
+            }
+            );
            }
        
     } ;})
@@ -179,7 +187,11 @@ bot.onText(/\/spells (.+)/,(msg,match)=>
           { 
               bot.sendMessage(ID,"Error: remember to enter name with capital letter ex: Accio.");}
               else
-         { bot.sendMessage(ID,'Spell✨:'+prod[0].spell+'\nType✨:'+prod[0].type+'\nEffect✨:'+prod[0].effect);}
+         { bot.sendMessage(ID,'<b>Spell</b>✨:'+prod[0].spell+'\n<b>Type</b>✨:'+prod[0].type+'\n<b>Effect</b>✨:'+prod[0].effect,
+         {
+            parse_mode:"HTML"
+         }
+         );}
     }})
 
 });
@@ -197,7 +209,11 @@ bot.onText(/\/staff/,(msg)=>
           const par=JSON.parse(b);
           console.log(par);
           for(let i=0;i<par.length;i++){
-            bot.sendMessage(ID,'Name🤝:'+par[i].name+'\nActor🎥:'+par[i].actor+'\nPhoto🌍:'+par[i].image);}
+            bot.sendMessage(ID,'<b>Name</b>🤝:'+par[i].name+'\n<b>Actor</b>🎥:'+par[i].actor+'\n<b>Photo</b>🌍:'+par[i].image,
+            {
+                parse_mode:"HTML"
+            }
+            );}
     }})
 
 });
@@ -214,7 +230,11 @@ bot.onText(/\/mostimportants/,(msg)=>
           const par=JSON.parse(b);
           console.log(par);
           for(let i=0;i<par.length;i++){
-            bot.sendMessage(ID,'Name🤝:'+par[i].name+'\nActor🎥:'+par[i].actor+'\nAlive🌍:'+par[i].alive+'\nPhoto🌍:'+par[i].image);}
+            bot.sendMessage(ID,'<b>Name</b>🤝:'+par[i].name+'\n<b>Actor</b>🎥:'+par[i].actor+'\n<b>Alive</b>🌍:'+par[i].alive+'\n<b>Photo</b>🌍:'+par[i].image,
+            {
+                parse_mode:"HTML"
+            });
+        }
     }})
 
 });
@@ -275,7 +295,7 @@ bot.on("callback_query", (callbackQuery) => {
                 "inline_keyboard": [
                     [
                         {
-                            text: "back⚡️",
+                            text: "Back⚡️",
                             callback_data:"back",
                                      
                         },
@@ -348,7 +368,6 @@ bot.onText(/\/patronus/,(msg)=>
     let id=-1;
     let sql="SELECT id FROM patronus";
     let array=[];
-    let array2=[];
 db.all(sql,[],(err,rows)=>
 {
     if(err)
@@ -384,7 +403,6 @@ db.all(sql,[],(err,rows)=>
         rows.forEach((row)=>
         {
             var b=row;
-            array2.push(b["name"],b["info"],b["photo1"]);
             console.dir(row);
             bot.sendMessage(msg.chat.id,"⚡️Your Patronus is "+b["name"]);
             bot.sendMessage(msg.chat.id,"⚡️"+b["info"]+"⚡️");
@@ -403,4 +421,155 @@ function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; 
-  }
+}
+
+//questa funzione genererà randomicamente una curiosità salvata nel mio database
+bot.onText(/\/curiosity/,(msg)=>
+{
+    bot.sendMessage(msg.chat.id,"Think you know everything there is to know about JK Rowling's boy wizard?🎇");
+    let id=-1;
+    let sql="SELECT id FROM news";
+    let array=[];
+   
+db.all(sql,[],(err,rows)=>
+{
+    if(err)
+    {
+        throw err;
+    }
+    rows.forEach((row)=>
+    {
+        var a=row;
+        array.push(a["id"]);
+        console.dir(row);
+    }
+    //dato che deve essere generato a caso, prima creo una query
+    //per selezionare gli id 
+    )
+    var c=array[array.length-1]+1;
+    //in questo while confronto un id generato in modo random con gli id 
+    //presenti nella mia tabella
+    //continua a eseguire il ciclo fino a quando non ne trova uno corrispondente
+    while(!array.includes(id))
+    { 
+        id=getRandomIntInclusive(1,c);
+    
+    }
+    //di conseguenza una volta trovato il mio id eseguo una seconda query per le informazioni che mi servono
+    let sql2="SELECT news.descrizione FROM news WHERE id="+id;
+    db.all(sql2,[],(err,rows)=>
+    {
+        if(err)
+        {
+            throw err;
+        }
+        rows.forEach((row)=>
+        {
+            var b=row;
+            
+            console.dir(row);
+             bot.sendMessage(msg.chat.id,"⚡️"+b["descrizione"]+"⚡️");
+            
+        }
+        )
+       
+    }
+)
+
+})
+ }
+)
+
+//questa funzione crea dei bottoni collegati al sito dove si possono leggere delle storie
+//originali J.K. Rowling
+bot.onText(/\/originals/,(msg)=>
+{
+    bot.sendMessage(msg.chat.id,"Explore the inner workings of the wizarding world with a collection of writing from <b>J.K. Rowling</b>📬",
+    {
+        parse_mode:"HTML",
+        "reply_markup":
+        {
+            "inline_keyboard": [
+                [
+                   //ho deciso di rendere alcuni comandi interattivi,
+                    {
+                        text:'Sortinghat✨',
+                        url:"https://www.wizardingworld.com/writing-by-jk-rowling/the-sorting-hat"
+                    },
+                   
+                    {
+                        text:'The Potter family💫',
+                        url:"https://www.wizardingworld.com/writing-by-jk-rowling/the-potter-family"
+                    },    
+                ],
+                [ 
+                    {
+                        text:'The Hogwarts Express✨',
+                        url:"https://www.wizardingworld.com/writing-by-jk-rowling/the-hogwarts-express"
+                    },
+                    {
+                        text:'The Marauder’s Map💫',
+                        url:"https://www.wizardingworld.com/writing-by-jk-rowling/the-marauders-map"
+                    },
+                ]
+            ]
+        }
+    });
+});
+
+//questa funzione genera random le citazioni del libro
+//salvate nel mio database
+bot.onText(/\/quotes/,(msg)=>
+{
+    bot.sendMessage(msg.chat.id,"Looking for the best Harry Potter quotes that sum up the magic of the series🎇");
+    let id=-1;
+    let sql="SELECT id FROM citazioni";
+    let array=[];
+   
+db.all(sql,[],(err,rows)=>
+{
+    if(err)
+    {
+        throw err;
+    }
+    rows.forEach((row)=>
+    {
+        var a=row;
+        array.push(a["id"]);
+        console.dir(row);
+    }
+    //dato che deve essere generato a caso, prima creo una query
+    //per selezionare gli id 
+    )
+    var c=array[array.length-1]+1;
+    //in questo while confronto un id generato in modo random con gli id 
+    //presenti nella mia tabella
+    //continua a eseguire il ciclo fino a quando non ne trova uno corrispondente
+    while(!array.includes(id))
+    { 
+        id=getRandomIntInclusive(1,c);
+    
+    }
+    //di conseguenza una volta trovato il mio id eseguo una seconda query per le informazioni che mi servono
+    let sql2="SELECT citazioni.testo FROM citazioni WHERE id="+id;
+    db.all(sql2,[],(err,rows)=>
+    {
+        if(err)
+        {
+            throw err;
+        }
+        rows.forEach((row)=>
+        {
+            var b=row;
+            
+            console.dir(row);
+             bot.sendMessage(msg.chat.id,"⚡️"+b["testo"]+"⚡️");
+            
+        }
+        )
+       
+    }
+)
+})
+ }
+)
