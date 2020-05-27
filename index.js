@@ -1,8 +1,12 @@
 const TelegramBot = require('node-telegram-bot-api'); 
 const token="1279013555:AAHO6MSwZvyO-zGV-rtM5eaqbnLAMOM5cvI";//token del mio bot telegram ottenuto con Botfather
-
+const express = require('express');
+const app = express();
 const bot=new TelegramBot(token,{polling:true});
 var request=require('request');
+
+var port =process.env.PORT || 3000;
+app.listen(port,()=>console.log("server in ascolto"+port))
 
 const sqlite3=require('sqlite3').verbose(); //decido di utilizzare sqlite3
 
