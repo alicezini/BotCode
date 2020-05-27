@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/eb8dbe72-2ced-48e7-b00d-d4176433c44a/resourceGroups/FelixFelicisBot/providers/Microsoft.Web/sites/FelixFelicisBot",
+    "appService.deploySubpath": "."
+}

@@ -113,11 +113,11 @@ bot.onText(/\/characters (.+)/,(msg,match)=>
   { var stud=match[1] ? match[1] :"";
     var ID=msg.chat.id;
     let url='https://www.potterapi.com/v1/characters?key=$2a$10$wmgxJf6kxBPsX3en7UlLh.OiMRN.sPMl8/PzOJJPBTBrWVTA2NMfy&name='+stud;
-    
+    bot.sendMessage(ID,'looking for '+stud,{parse_mode:'Markdown'});
     request(url, function(error,response,body){
         if(!error&&response.statusCode==200)
         {
-            bot.sendMessage(ID,'looking for '+stud,{parse_mode:'Markdown'});
+            
             var b=body;
             const par=JSON.parse(b);
             console.log(par);
@@ -145,7 +145,8 @@ bot.onText(/\/house (.+)/,(msg,match)=>
     var ID=msg.chat.id;
     bot.on("polling_error", (err) => console.log(err));
     let url='http://hp-api.herokuapp.com/api/characters/house/'+house;
-
+    bot.sendMessage(ID,'looking for '+house,{parse_mode:'Markdown'});
+    
     request(url, function(error,response,body)
     { 
         //se la casa inserita non è giusta messaggio che permette di vedere le opzioni
@@ -155,7 +156,7 @@ bot.onText(/\/house (.+)/,(msg,match)=>
         }
         else if(!error&&response.statusCode==200)
         {
-           bot.sendMessage(ID,'looking for '+house,{parse_mode:'Markdown'});
+          
            var b=body;
            const par=JSON.parse(b);
            console.log(par);
