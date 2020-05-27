@@ -1,17 +1,13 @@
-const TelegramBot = require('node-telegram-bot-api');
-const token="1279013555:AAHO6MSwZvyO-zGV-rtM5eaqbnLAMOM5cvI";
-
-
-const express= require('express');
-const app = express();
+const TelegramBot = require('node-telegram-bot-api'); 
+const token="1279013555:AAHO6MSwZvyO-zGV-rtM5eaqbnLAMOM5cvI";//token del mio bot telegram ottenuto con Botfather
 
 const bot=new TelegramBot(token,{polling:true});
 var request=require('request');
 
-const sqlite3=require('sqlite3').verbose();
+const sqlite3=require('sqlite3').verbose(); //decido di utilizzare sqlite3
 
-let db=new sqlite3.Database('./harrypotter.db',(err)=>
-{
+let db=new sqlite3.Database('./harrypotter.db',(err)=>//in questa parte del codice sto facendo a connessione al 
+{                                                     //mio dataabase in SQLite 
     if(err)
     {
         console.error(err.message);
@@ -21,6 +17,7 @@ let db=new sqlite3.Database('./harrypotter.db',(err)=>
 
 );
 
+//la prima cosa che l'utente visualizzerà non appena scriverà /start sarà il messaggio di benvenuto 
 bot.onText(/\/start/,(msg)=>
 {
     bot.sendMessage(msg.chat.id,"<b>Your letter has finally arrived!🦉</b> \n \nWhat kind of witch or wizard will you be? Will you have the courage of a <b>Gryffindor</b>? The audacity of a <b>Slytherin</b>? The insight of a <b>Ravenclaw</b>?  Loyalty of a <b>Hufflepuff</b>? <b>YOU</b> will decide! 🎓 With countless choices, you can build your own unique path in HarryPotterBot. 📬",
@@ -30,7 +27,8 @@ bot.onText(/\/start/,(msg)=>
         {
             "inline_keyboard": [
                 [
-                   
+                   //ho deciso di rendere alcuni comandi interattivi,
+                   //dato che non necessitano di particolari parametri
                     {
                         text:'location✨',
                         callback_data:"click"
@@ -42,7 +40,7 @@ bot.onText(/\/start/,(msg)=>
                     },     
                 ],
                 [
-                   
+                   //collegamento al sito ufficiale di Harry Potter
                     {
                         text:'official site✨',
                         url:"https://www.wizardingworld.com" 
@@ -54,7 +52,9 @@ bot.onText(/\/start/,(msg)=>
 });
 
 
-
+//la seconda funzione è quella dello smistamento nella casata
+//utilizzo un api messa a disposizione da un sito
+//che scegelierà casualmente una casata 
 bot.onText(/\/sortinghat/,(msg)=>
   { 
     var ID=msg.chat.id;
@@ -64,7 +64,7 @@ bot.onText(/\/sortinghat/,(msg)=>
             {var res = JSON.parse(body);           
             switch(res){
                 case "Ravenclaw":
-                    
+                    //ho deciso per abbellire di aggiungere descrizione e foto
                     bot.sendMessage(ID,"✨<b>Ravenclaws</b> possess the traits of cleverness, wisdom, wit, intellectual ability and creativity.✨",
                     {
                         parse_mode:"HTML"
@@ -103,7 +103,8 @@ bot.onText(/\/sortinghat/,(msg)=>
          
     }
 )});
-
+//funzione characters questa richiede dei parametri (Nome e Cognome)
+//uso sempre un api che richiede la chiave in questo caso
 bot.onText(/\/characters (.+)/,(msg,match)=>
   { var stud=match[1] ? match[1] :"";
     var ID=msg.chat.id;
@@ -116,9 +117,10 @@ bot.onText(/\/characters (.+)/,(msg,match)=>
             var b=body;
             const par=JSON.parse(b);
             console.log(par);
-          if(par.length==0)
-          { 
-              bot.sendMessage(ID,"Error: remember to enter name and surname with capital letter ex: Harry Potter.");}
+          if(par.length==0)//controllo che il personaggio esista
+          { //messaggio per ricordare di usare le lettere maiuscole
+              bot.sendMessage(ID,"Error: remember to enter name and surname with capital letter ex: Harry Potter.");
+          }
           else
           {
               bot.sendMessage(ID,'Name🤝:'+par[0].name+'\nHome🌍:'+par[0].house+'\nSchool🏰:'+par[0].school+'\nAlias🔍:'+par[0].alias+'\nWand✨:'+par[0].wand);
@@ -126,7 +128,9 @@ bot.onText(/\/characters (.+)/,(msg,match)=>
         }})
 
 });
- 
+
+//questa funzione permette di vedere i componeneti di una determinata casata
+//in questo caso utilizzo sempre api fornite da un sito ma differente da quello precedente
 bot.onText(/\/house (.+)/,(msg,match)=>
   { 
     var house=match[1] ? match[1] :"";
@@ -136,6 +140,7 @@ bot.onText(/\/house (.+)/,(msg,match)=>
 
     request(url, function(error,response,body)
     { 
+        //se la casa inserita non è giusta messaggio che permette di vedere le opzioni
         if(house!="ravenclaw"&&house!="gryffindor"&&house!="hufflepuff"&&house!="slytherin")
         {
         bot.sendMessage(ID,"Use one of these \nravenclaw\ngryffindor\nhufflepuff\nslytherin");
@@ -147,26 +152,28 @@ bot.onText(/\/house (.+)/,(msg,match)=>
            const par=JSON.parse(b);
            console.log(par);
            for(let i=0;i<par.length;i++)
-           {
-          bot.sendMessage(ID,'Name🤝:'+par[i].name+'\nPhoto🌍:'+par[i].image);}
+           {//utilizzo un for per stampare tutti i risultati
+            bot.sendMessage(ID,'Name🤝:'+par[i].name+'\nPhoto🌍:'+par[i].image);
+           }
        
     } ;})
 });
 
+//questa funzione permette una volta cercato un incantesimo di vederne le caratteristiche
 bot.onText(/\/spells (.+)/,(msg,match)=>
-  { var spells=match[1] ? match[1] :"";
+  { 
+      var spells=match[1] ? match[1] :"";
     var ID=msg.chat.id;
-
     let url='https://www.potterapi.com/v1/spells?key=$2a$10$wmgxJf6kxBPsX3en7UlLh.OiMRN.sPMl8/PzOJJPBTBrWVTA2NMfy';
     request(url, function(error,response,body){
         if(!error&&response.statusCode==200){
           var b=body;
           const par=JSON.parse(b);
           var tabellaUtenti = []
-          tabellaUtenti = par;
-          var prod=[]
-          prod=tabellaUtenti.filter(function(item) {
-            return item.spell === spells;
+          tabellaUtenti = par; //qui ho avuto un po' di problemi perchè l'api non permetteva di visualizzare gli incantesimi  
+          var prod=[]          //in base ad esempio al nome, essendo gratuite non sono perfette
+          prod=tabellaUtenti.filter(function(item) {//quindi mi sono creata una tabella e ho usato le proprietà degli array
+            return item.spell === spells;           //e funziona perfettamente
           });   
           if(prod.length==0)
           { 
@@ -177,6 +184,8 @@ bot.onText(/\/spells (.+)/,(msg,match)=>
 
 });
 
+//questa è la funzione che visualizza tutto lo staff della scuola di hogwarts
+//stampa tutto l'elenco
 bot.onText(/\/staff/,(msg)=>
   {
     var ID=msg.chat.id;
@@ -193,6 +202,7 @@ bot.onText(/\/staff/,(msg)=>
 
 });
 
+//simile al funzione precedente stampa però i personaggi più importanti
 bot.onText(/\/mostimportants/,(msg)=>
   {
     var ID=msg.chat.id;
@@ -209,7 +219,7 @@ bot.onText(/\/mostimportants/,(msg)=>
 
 });
 
-
+//questa funzione gestisce i pulsanti iniziali
 bot.on("callback_query", (callbackQuery) => {
     const msg = callbackQuery.message;
  
@@ -217,6 +227,8 @@ bot.on("callback_query", (callbackQuery) => {
     
         bot.answerCallbackQuery(callbackQuery.id)
         .then(() =>
+        //qui dico che se la callback_data contiene la parola click
+        //deve mostrare un'altra pagina con altri bottoni
         {if(array.includes("click"))
         { bot.sendMessage(msg.chat.id,"This page will provide location of places mentioned and visited in the Harry Potter series🌍",
         {
@@ -252,7 +264,27 @@ bot.on("callback_query", (callbackQuery) => {
             }
             }
         )
-    } 
+    }  //qui il bottone mostra le mie informazioni
+        if(array.includes("me"))
+        {
+        bot.sendMessage(msg.chat.id,"<b>Alice Zini</b> \n5^H Informatica, ISII G. Marconi, Piacenza",
+        {
+            parse_mode:"HTML",
+            "reply_markup":
+            {
+                "inline_keyboard": [
+                    [
+                        {
+                            text: "back⚡️",
+                            callback_data:"back",
+                                     
+                        },
+                    ],
+                  
+            ]
+            }
+        });
+        }
 })})
  
 
@@ -264,6 +296,7 @@ bot.on("callback_query", (callbackQuery) => {
         bot.answerCallbackQuery(callbackQuery.id)
         .then(() =>
         {
+            //se la callback_data contiene castle mostrerà foto descrizione e posizione del castello
             if(array.includes("castle"))
         {
             bot.sendLocation(msg.chat.id,55.41558,-1.70592);
@@ -274,7 +307,8 @@ bot.on("callback_query", (callbackQuery) => {
             });
             bot.sendPhoto(msg.chat.id,"assets/castello.jpg");
          
-        }  
+        } 
+         //stessa procedura del castello
         if(array.includes("platform"))
         {
             bot.sendLocation(msg.chat.id,51.53605,-0.12513);
@@ -284,7 +318,8 @@ bot.on("callback_query", (callbackQuery) => {
             });
             bot.sendPhoto(msg.chat.id,"assets/piattaforma.jpg");
             
-        }  
+        }
+        //stessa procedura del castello  
         if(array.includes("drive"))
         {
             bot.sendLocation(msg.chat.id,37.56594,-122.385798);
@@ -293,27 +328,27 @@ bot.on("callback_query", (callbackQuery) => {
                 parse_mode:"HTML"
             });
             bot.sendPhoto(msg.chat.id,"assets/privet.jpg"); 
-        }  
+        }
+        //in questo caso per tornare indietro ho trovato su internet questo metodo che cancella l'ultimo messaggio
+        //così sembrerà di essere tornati al messaggio precedente  
         if(array.includes("back"))
         {
             bot.deleteMessage(msg.chat.id, msg.message_id).catch(err => console.error(err)).finally(() =>
             bot.answerCallbackQuery(callbackQuery.id))
         }
-        if(array.includes("me"))
-        {
-            bot.sendMessage(msg.chat.id,"<b>Alice Zini</b> \n5^H Informatica, ISII G. Marconi, Piacenza",
-            {
-                parse_mode:"HTML"
-            });
-        }
         })
    } 
 )
 
+//per questa funzione non ho trovato api online quindi ho creato un database
+//nel database ho la tabella patronus con nome info e foto
 bot.onText(/\/patronus/,(msg)=>
 {
-    let sql="SELECT * FROM patronus";
-
+    bot.sendMessage(msg.chat.id,"Relax... think of your happiest memory...⏳");
+    let id=-1;
+    let sql="SELECT id FROM patronus";
+    let array=[];
+    let array2=[];
 db.all(sql,[],(err,rows)=>
 {
     if(err)
@@ -322,10 +357,50 @@ db.all(sql,[],(err,rows)=>
     }
     rows.forEach((row)=>
     {
+        var a=row;
+        array.push(a["id"]);
         console.dir(row);
-        bot.sendMessage(msg.chat.id,row[1]);
     }
+    //dato che deve essere generato a caso, prima creo una query
+    //per selezionare gli id 
     )
-})
-}
+    var c=array[array.length-1]+1;
+    //in questo while confronto un id generato in modo random con gli id 
+    //presenti nella mia tabella
+    //continua a eseguire il ciclo fino a quando non ne trova uno corrispondente
+    while(!array.includes(id))
+    { 
+        id=getRandomIntInclusive(1,c);
+    
+    }
+    //di conseguenza una volta trovato il mio id eseguo una seconda query per le informazioni che mi servono
+    let sql2="SELECT patronus.name, patronus.info, patronus.photo1 FROM patronus WHERE id="+id;
+    db.all(sql2,[],(err,rows)=>
+    {
+        if(err)
+        {
+            throw err;
+        }
+        rows.forEach((row)=>
+        {
+            var b=row;
+            array2.push(b["name"],b["info"],b["photo1"]);
+            console.dir(row);
+            bot.sendMessage(msg.chat.id,"⚡️Your Patronus is "+b["name"]);
+            bot.sendMessage(msg.chat.id,"⚡️"+b["info"]+"⚡️");
+            bot.sendPhoto(msg.chat.id,b["photo1"]);
+        }
+        )
+       
+    }
 )
+
+})
+ }
+)
+//funzione per generare numeri random
+function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min; 
+  }
