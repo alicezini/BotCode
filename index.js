@@ -225,7 +225,7 @@ bot.onText(/\/staff/,(msg)=>
 
 //simile al funzione precedente stampa però i personaggi più importanti
 bot.onText(/\/mostimportants/,(msg)=>
-  {
+  { bot.sendMessage(ID,'looking for ',{parse_mode:'Markdown'});
     var ID=msg.chat.id;
     let url='http://hp-api.herokuapp.com/api/characters';
     request(url, function(error,response,body){
